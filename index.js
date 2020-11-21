@@ -357,11 +357,11 @@ INSERT INTO Contains values("listid5", "mooid5");
 });
 
 app.get(route + '/user', (req, res) => {
-    if (req.query.handle == null) {
-        console.log('no query param');
+    let query = 'SELECT * FROM User;';
+    if (req.query.handle != null) {
+        query = 'SELECT * FROM User WHERE handle = ?';
     }
-    const query = 'SELECT * FROM User;';
-    connection.query(query, (error, results, fields) => {
+    connection.query(query, [req.query.handle], (error, results, fields) => {
 
         if (error) {
             res.send(error);
