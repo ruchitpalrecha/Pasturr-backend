@@ -384,6 +384,32 @@ app.post('/user', jsonParser, (req, res) => {
     });
 });
 
+app.get('/region', (req, res) => {
+    const query = 'SELECT * FROM Region;';
+    connection.query(query, (error, results, fields) => {
+
+        if (error) {
+            res.send(error);
+            return;
+        }
+
+        res.send(results);
+    });
+});
+
+app.get('/country', (req, res) => {
+    const query = 'SELECT * FROM Country;';
+    connection.query(query, (error, results, fields) => {
+
+        if (error) {
+            res.send(error);
+            return;
+        }
+
+        res.send(results);
+    });
+});
+
 app.listen(port, () => {
     console.log('on port: 3000');
 });
