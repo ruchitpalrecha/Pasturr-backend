@@ -6,10 +6,13 @@ const app = express();
 const port = 4000;
 const jsonParser = bodyParser.json()
 
+const route = '/api'
+
 const connection = mysql.createConnection({
     host: 'localhost',
     user: 'pasturr',
     password: 'password',
+    database: 'pasturr',
     multipleStatements: true
 });
 connection.connect(function (err) {
@@ -22,11 +25,11 @@ connection.connect(function (err) {
     console.log('connected as id ' + connection.threadId);
 });
 
-app.get('/', (req, res) => {
+app.get(route + '/', (req, res) => {
     res.send('hello');
 });
 
-app.post('/database', (req, res) => {
+app.post(route + '/database', (req, res) => {
     const query = `
     DROP DATABASE IF EXISTS pasturr; 
     CREATE DATABASE pasturr;
@@ -52,7 +55,7 @@ app.post('/database', (req, res) => {
     });
 });
 
-app.post('/tables', (req, res) => {
+app.post(route + '/tables', (req, res) => {
     const query = `
     CREATE TABLE User(
         handle VARCHAR(32),
@@ -212,7 +215,7 @@ app.post('/tables', (req, res) => {
     });
 });
 
-app.post('/load', (req, res) => {
+app.post(route + '/load', (req, res) => {
     const query = `
 INSERT INTO CreditCard values(9876543210099239, "AMEX");
 INSERT INTO CreditCard values(9234567899896789, "AMEX");
@@ -353,7 +356,10 @@ INSERT INTO Contains values("listid5", "mooid5");
     });
 });
 
-app.get('/user', (req, res) => {
+app.get(route + '/user', (req, res) => {
+    if (req.query.handle == null) {
+        console.log('no query param');
+    }
     const query = 'SELECT * FROM User;';
     connection.query(query, (error, results, fields) => {
 
@@ -366,7 +372,7 @@ app.get('/user', (req, res) => {
     });
 });
 
-app.post('/user', jsonParser, (req, res) => {
+app.post(route + '/user', jsonParser, (req, res) => {
     const handle = req.body.handle;
     const email = req.body.email;
     const password = req.body.password;
@@ -384,7 +390,7 @@ app.post('/user', jsonParser, (req, res) => {
     });
 });
 
-app.get('/region', (req, res) => {
+app.get(route + '/region', (req, res) => {
     const query = 'SELECT * FROM Region;';
     connection.query(query, (error, results, fields) => {
 
@@ -397,7 +403,7 @@ app.get('/region', (req, res) => {
     });
 });
 
-app.get('/country', (req, res) => {
+app.get(route + '/country', (req, res) => {
     const query = 'SELECT * FROM Country;';
     connection.query(query, (error, results, fields) => {
 
@@ -410,7 +416,7 @@ app.get('/country', (req, res) => {
     });
 });
 
-app.get('/payment', (req, res) => {
+app.get(route + '/payment', (req, res) => {
     const query = 'SELECT paymentID, p.ccnum, cvnum, handle, cardType FROM PaymentInformation p, CreditCard c WHERE p.ccnum = c.ccnum;';
     connection.query(query, (error, results, fields) => {
 
