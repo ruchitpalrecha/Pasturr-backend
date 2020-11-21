@@ -1,15 +1,17 @@
 const express = require('express');
 const mysql = require('mysql');
+const bodyParser = require('body-parser');
 
 const app = express();
 const port = 3000;
+const jsonParser = bodyParser.json()
+
 const connection = mysql.createConnection({
     host: 'localhost',
     user: 'pasturr',
     password: 'password',
     multipleStatements: true
 });
-
 connection.connect(function (err) {
     if (err) {
 
@@ -23,7 +25,6 @@ connection.connect(function (err) {
 app.get('/', (req, res) => {
     res.send('hello');
 });
-
 
 app.post('/database', (req, res) => {
     const query = `
@@ -353,7 +354,7 @@ INSERT INTO Contains values("listid5", "mooid5");
 });
 
 app.get('/user', (req, res) => {
-    const query = "SELECT * FROM User;";
+    const query = 'SELECT * FROM User;';
     connection.query(query, (error, results, fields) => {
 
         if (error) {
@@ -363,7 +364,25 @@ app.get('/user', (req, res) => {
 
         res.send(results);
     });
-})
+});
+
+app.post('/user', jsonParser, (req, res) => {
+    const handle = req.body.handle;
+    const email = req.body.email;
+    const password = req.body.password;
+    const name = req.body.name;
+    const bio = req.body.bio;
+    const country = req.body.country;
+
+    const query = 'INSERT INTO User (handle, email, password, name, bio, country) VALUES (?, ?, ?, ?, ?, ?)';
+    connection.query(query, [handle, email, password, name, bio, country], (error, results, fields) => {
+        if (error) {
+            res.send(error);
+            return;
+        }
+        res.send("Added User correctly");
+    });
+});
 
 app.listen(port, () => {
     console.log('on port: 3000');
