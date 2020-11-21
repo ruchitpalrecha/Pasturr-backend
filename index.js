@@ -12,6 +12,7 @@ const connection = mysql.createConnection({
 
 connection.connect(function (err) {
     if (err) {
+
         console.error('error connecting: ' + err.stack);
         return;
     }
@@ -209,6 +210,19 @@ app.post('/tables', (req, res) => {
         res.send("Created tables");
     });
 });
+
+app.get('/user', (req, res) => {
+    const query = "SELECT * FROM User;";
+    connection.query(query, (error, results, fields) => {
+
+        if (error) {
+            res.send(error);
+            return;
+        }
+
+        res.send(results);
+    });
+})
 
 app.listen(port, () => {
     console.log('on port: 3000');
