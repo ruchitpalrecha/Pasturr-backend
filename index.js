@@ -26,7 +26,7 @@ connection.connect(function (err) {
 });
 
 app.get(route + '/', (req, res) => {
-    res.send('hello');
+    res.send({ "message": "hello" });
 });
 
 app.post(route + '/database', (req, res) => {
