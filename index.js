@@ -410,6 +410,19 @@ app.get('/country', (req, res) => {
     });
 });
 
+app.get('/payment', (req, res) => {
+    const query = 'SELECT paymentID, p.ccnum, cvnum, handle, cardType FROM PaymentInformation p, CreditCard c WHERE p.ccnum = c.ccnum;';
+    connection.query(query, (error, results, fields) => {
+
+        if (error) {
+            res.send(error);
+            return;
+        }
+
+        res.send(results);
+    });
+});
+
 app.listen(port, () => {
-    console.log('on port: 3000');
+    console.log('on port: 4000');
 });
