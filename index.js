@@ -314,7 +314,7 @@ INSERT INTO ReplyTo values("replymooid1", "mooid1");
 INSERT INTO ReplyTo values("replymooid2", "mooid2");
 INSERT INTO ReplyTo values("replymooid3", "mooid3");
 INSERT INTO ReplyTo values("replymooid4", "mooid3");
-INSERT INTO ReplyTo values("replymooid5", "mooid3");
+INSERT INTO ReplyTo values("replymooid5", "replymooid4");
 
 INSERT INTO Tag values("tag 1", 50, "jdb");
 INSERT INTO Tag values("tag 2", 50, "Ronin");
@@ -431,7 +431,7 @@ app.get(route + '/payment', (req, res) => {
 
 // returns all Moos (REPLIES INCLUDED)
 app.get(route + '/moo', (req, res) => {
-    const query = 'SELECT * FROM Moo;';
+    const query = 'SELECT originalMooID AS mooID FROM ReplyTo WHERE originalMooID NOT IN (SELECT replyMooID FROM ReplyTo);';
     connection.query(query, (error, results, fields) => {
         if (error) {
             res.send(error);
@@ -469,7 +469,7 @@ app.get(route + '/replies', (req, res) => {
 
         res.send(results);
     });
-})
+});
 
 app.listen(port, () => {
     console.log('on port: 4000');
