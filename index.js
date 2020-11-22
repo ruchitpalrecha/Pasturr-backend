@@ -330,7 +330,7 @@ INSERT INTO Trending values("tag 4", 1, "North America");
 INSERT INTO Trending values("tag 5", 1, "Asia");
 
 INSERT INTO TaggedWith values("tag 1", "mooid1");
-INSERT INTO TaggedWith values("tag 2", "mooid2");
+INSERT INTO TaggedWith values("tag 2", "mooid1");
 INSERT INTO TaggedWith values("tag 3", "mooid3");
 INSERT INTO TaggedWith values("tag 4", "mooid4");
 INSERT INTO TaggedWith values("tag 5", "mooid5");
@@ -501,21 +501,80 @@ app.get(route + '/numReplies', (req, res) => {
     });
 });
 
-// TODO: Filter by tags
-app.get(route + '/filterMoos', (req, res) => {
+// TODO: Filter by tags (division)
+app.post(route + '/filterMoos', jsonParser, (req, res) => {
     let query = 'SELECT * FROM Moo;';
-    vals = [];
-    if (req.query.handle != null && req.query.mooTime != null) {
+    vals = []
+    if (req.body == null) {
+    }
+    else if (req.body.handle != null && req.body.mooTime != null && req.body.tags != null) {
+        query = `SELECT * 
+        FROM Moo 
+        WHERE handle = ? AND mooTime >= ? 
+        AND mooID IN 
+        (SELECT DISTINCT mooID 
+        FROM Moo m 
+        WHERE NOT EXISTS (
+        (SELECT t.tagName 
+        FROM Tag t 
+        WHERE t.tagName IN (?) 
+        AND t.tagName 
+        NOT IN 
+        (SELECT w.tagName 
+        FROM TaggedWith w 
+        WHERE w.mooID = m.mooID))));`;
+        vals = [req.body.handle, req.body.mooTime, req.body.tags]
+    }
+    else if (req.body.handle != null && req.body.mooTime != null) {
         query = 'SELECT * FROM Moo WHERE handle = ? AND mooTime >= ?;'
-        vals = [req.query.handle, req.query.mooTime];
+        vals = [req.body.handle, req.body.mooTime];
     }
-    else if (req.query.handle != null) {
+    else if (req.body.handle != null && req.body.tags != null) {
+        query = `SELECT * 
+        FROM Moo 
+        WHERE handle = ?
+        AND mooID IN 
+        (SELECT DISTINCT mooID 
+        FROM Moo m 
+        WHERE NOT EXISTS (
+        (SELECT t.tagName 
+        FROM Tag t 
+        WHERE t.tagName IN (?) 
+        AND t.tagName 
+        NOT IN 
+        (SELECT w.tagName 
+        FROM TaggedWith w 
+        WHERE w.mooID = m.mooID))));`;
+        vals = [req.body.handle, req.body.tags]
+    }
+    else if (req.body.mooTime != null && req.body.tags != null) {
+        query = `SELECT * 
+        FROM Moo 
+        WHERE mooTime >= ? 
+        AND mooID IN 
+        (SELECT DISTINCT mooID 
+        FROM Moo m 
+        WHERE NOT EXISTS (
+        (SELECT t.tagName 
+        FROM Tag t 
+        WHERE t.tagName IN (?) 
+        AND t.tagName 
+        NOT IN 
+        (SELECT w.tagName 
+        FROM TaggedWith w 
+        WHERE w.mooID = m.mooID))));`;
+        vals = [req.body.mooTime, req.body.tags]
+    }
+    else if (req.body.handle != null) {
         query = 'SELECT * FROM Moo WHERE handle = ?';
-        vals = [req.query.handle];
+        vals = [req.body.handle];
     }
-    else if (req.query.mooTime != null) {
+    else if (req.body.mooTime != null) {
         query = 'SELECT * FROM Moo WHERE mooTime >= ?';
-        vals = [req.query.mooTime];
+        vals = [req.body.mooTime];
+    } else if (req.body.tags != null) {
+        query = "SELECT * FROM Moo m WHERE NOT EXISTS ((SELECT t.tagName FROM Tag t WHERE t.tagName IN (?) AND t.tagName NOT IN (SELECT w.tagName FROM TaggedWith w WHERE w.mooID = m.mooID)));";
+        vals = [req.body.tags];
     }
     connection.query(query, vals, (error, results, fields) => {
 
