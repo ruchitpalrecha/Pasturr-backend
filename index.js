@@ -460,7 +460,7 @@ app.post(route + '/moo', jsonParser, (req, res) => {
 });
 
 app.get(route + '/remoo', (req, res) => {
-    const query = 'SELECT r.mooID, comment, ofMooID, content, mediaURL, likeCount, mooTime, handle FROM ReMoo r, Moo m WHERE r.ofMooID = m.mooID;';
+    const query = 'SELECT r.mooID, comment, ofMooID, content, likeCount, mooTime, handle FROM ReMoo r, Moo m WHERE r.ofMooID = m.mooID;';
     connection.query(query, (error, results, fields) => {
         if (error) {
             res.send(error);
@@ -495,6 +495,32 @@ app.get(route + '/numReplies', (req, res) => {
             res.send(error);
             return;
         }
+        res.send(results);
+    });
+});
+
+app.get(route + '/filterMoos', (req, res) => {
+    let query = 'SELECT * FROM Moo;';
+    vals = [];
+    if (req.query.handle != null && req.query.mooTime != null) {
+        query = 'SELECT * FROM Moo WHERE handle = ? AND mooTime >= ?;'
+        vals = [req.query.handle, req.query.mooTime];
+    }
+    else if (req.query.handle != null) {
+        query = 'SELECT * FROM Moo WHERE handle = ?';
+        vals = [req.query.handle];
+    }
+    else if (req.query.mooTime != null) {
+        query = 'SELECT * FROM Moo WHERE mooTime >= ?';
+        vals = [req.query.mooTime];
+    }
+    connection.query(query, vals, (error, results, fields) => {
+
+        if (error) {
+            res.send(error);
+            return;
+        }
+
         res.send(results);
     });
 });
