@@ -1,6 +1,7 @@
 const express = require('express');
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
+const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 const port = 4000;
@@ -136,7 +137,7 @@ app.post(route + '/tables', (req, res) => {
     );
 
     CREATE TABLE Moo(
-        mooID VARCHAR(16),
+        mooID VARCHAR(40),
         content VARCHAR(256),
         mediaURL VARCHAR(128),
         likeCount INTEGER,
@@ -147,16 +148,16 @@ app.post(route + '/tables', (req, res) => {
     );
 
     CREATE TABLE ReMoo(
-        mooID VARCHAR(16),
+        mooID VARCHAR(40),
         comment VARCHAR(128),
-        ofMooID VARCHAR(16),
+        ofMooID VARCHAR(40),
         PRIMARY KEY(mooID),
         FOREIGN KEY(ofMooID) REFERENCES Moo(mooID) ON DELETE CASCADE
     );
 
     CREATE TABLE ReplyTo(
-        replyMooID VARCHAR(16),
-        originalMooID VARCHAR(16),
+        replyMooID VARCHAR(40),
+        originalMooID VARCHAR(40),
         PRIMARY KEY(replyMooID),
         FOREIGN KEY(replyMooID) REFERENCES Moo(mooID) ON DELETE CASCADE,
         FOREIGN KEY(originalMooID) REFERENCES Moo(mooID) ON DELETE CASCADE
@@ -429,15 +430,33 @@ app.get(route + '/payment', (req, res) => {
     });
 });
 
-// returns all Moos (REPLIES INCLUDED)
+// returns all Moos
 app.get(route + '/moo', (req, res) => {
-    const query = 'SELECT originalMooID AS mooID FROM ReplyTo WHERE originalMooID NOT IN (SELECT replyMooID FROM ReplyTo);';
+    const query = 'SELECT * FROM Moo WHERE mooID NOT IN (SELECT replyMooID FROM ReplyTo);';
     connection.query(query, (error, results, fields) => {
         if (error) {
             res.send(error);
             return;
         }
         res.send(results);
+    });
+});
+
+app.post(route + '/moo', jsonParser, (req, res) => {
+    const mooID = uuidv4();
+    const content = req.body.content;
+    const mediaURL = req.body.mediaURL;
+    const likeCount = 0;
+    const mooTime = new Date().toISOString().slice(0, 19).replace('T', ' ');;
+    const handle = req.body.handle;
+
+    const query = 'INSERT INTO Moo (mooID, content, mediaURL, likeCount, mooTime, handle) VALUES (?, ?, ?, ?, ?, ?)';
+    connection.query(query, [mooID, content, mediaURL, likeCount, mooTime, handle], (error, results, fields) => {
+        if (error) {
+            res.send(error);
+            return;
+        }
+        res.send("Added Moo correctly");
     });
 });
 
