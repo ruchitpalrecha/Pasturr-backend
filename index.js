@@ -430,6 +430,7 @@ app.get(route + '/payment', (req, res) => {
     });
 });
 
+// Get tags for moos
 app.get(route + '/moo', (req, res) => {
     const query = 'SELECT * FROM Moo WHERE mooID NOT IN (SELECT replyMooID FROM ReplyTo);';
     connection.query(query, (error, results, fields) => {
@@ -441,6 +442,7 @@ app.get(route + '/moo', (req, res) => {
     });
 });
 
+// Add tags when creating moos
 app.post(route + '/moo', jsonParser, (req, res) => {
     const mooID = uuidv4();
     const content = req.body.content;
@@ -499,6 +501,7 @@ app.get(route + '/numReplies', (req, res) => {
     });
 });
 
+// TODO: Filter by tags
 app.get(route + '/filterMoos', (req, res) => {
     let query = 'SELECT * FROM Moo;';
     vals = [];
@@ -522,6 +525,34 @@ app.get(route + '/filterMoos', (req, res) => {
         }
 
         res.send(results);
+    });
+});
+
+app.get(route + '/tag', (req, res) => {
+    const query = 'SELECT * FROM Tag;';
+    connection.query(query, (error, results, fields) => {
+
+        if (error) {
+            res.send(error);
+            return;
+        }
+
+        res.send(results);
+    });
+});
+
+app.post(route + '/tag', jsonParser, (req, res) => {
+    const tagName = req.body.tagName;
+    const frequency = 0;
+    const handle = req.body.handle;
+
+    const query = 'INSERT INTO Tag (tagName, frequency, handle) VALUES (?, ?, ?)';
+    connection.query(query, [tagName, frequency, handle], (error, results, fields) => {
+        if (error) {
+            res.send(error);
+            return;
+        }
+        res.send("Added Tag correctly");
     });
 });
 
