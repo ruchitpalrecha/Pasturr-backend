@@ -430,7 +430,6 @@ app.get(route + '/payment', (req, res) => {
     });
 });
 
-// returns all Moos
 app.get(route + '/moo', (req, res) => {
     const query = 'SELECT * FROM Moo WHERE mooID NOT IN (SELECT replyMooID FROM ReplyTo);';
     connection.query(query, (error, results, fields) => {
@@ -468,7 +467,6 @@ app.get(route + '/remoo', (req, res) => {
             return;
         }
         res.send(results);
-        //console.log(results);
     });
 });
 
@@ -486,6 +484,17 @@ app.get(route + '/replies', (req, res) => {
             return;
         }
 
+        res.send(results);
+    });
+});
+
+app.get(route + '/numReplies', (req, res) => {
+    const query = 'SELECT r.originalMooID AS mooID, COUNT(r.replyMooID) AS numReplies FROM ReplyTo r GROUP BY r.originalMooID HAVING COUNT(*) > 4';
+    connection.query(query, (error, results, fields) => {
+        if (error) {
+            res.send(error);
+            return;
+        }
         res.send(results);
     });
 });
