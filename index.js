@@ -489,7 +489,7 @@ app.get(route + '/replies', (req, res) => {
 });
 
 app.get(route + '/numReplies', (req, res) => {
-    const query = 'SELECT r.originalMooID AS mooID, COUNT(r.replyMooID) AS numReplies FROM ReplyTo r GROUP BY r.originalMooID HAVING COUNT(*) > 4';
+    const query = 'SELECT r.originalMooID AS mooID, COUNT(r.replyMooID) AS numReplies FROM ReplyTo r GROUP BY r.originalMooID HAVING COUNT(*) > 1';
     connection.query(query, (error, results, fields) => {
         if (error) {
             res.send(error);
