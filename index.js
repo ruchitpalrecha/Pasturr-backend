@@ -313,8 +313,8 @@ INSERT INTO ReMoo values("remooid5", "I agree with this moo", "mooid5");
 INSERT INTO ReplyTo values("replymooid1", "mooid1");
 INSERT INTO ReplyTo values("replymooid2", "mooid2");
 INSERT INTO ReplyTo values("replymooid3", "mooid3");
-INSERT INTO ReplyTo values("replymooid4", "mooid4");
-INSERT INTO ReplyTo values("replymooid5", "mooid5");
+INSERT INTO ReplyTo values("replymooid4", "mooid3");
+INSERT INTO ReplyTo values("replymooid5", "mooid3");
 
 INSERT INTO Tag values("tag 1", 50, "jdb");
 INSERT INTO Tag values("tag 2", 50, "Ronin");
@@ -428,6 +428,48 @@ app.get(route + '/payment', (req, res) => {
         res.send(results);
     });
 });
+
+// returns all Moos (REPLIES INCLUDED)
+app.get(route + '/moo', (req, res) => {
+    const query = 'SELECT * FROM Moo;';
+    connection.query(query, (error, results, fields) => {
+        if (error) {
+            res.send(error);
+            return;
+        }
+        res.send(results);
+    });
+});
+
+app.get(route + '/remoo', (req, res) => {
+    const query = 'SELECT r.mooID, comment, ofMooID, content, mediaURL, likeCount, mooTime, handle FROM ReMoo r, Moo m WHERE r.ofMooID = m.mooID;';
+    connection.query(query, (error, results, fields) => {
+        if (error) {
+            res.send(error);
+            return;
+        }
+        res.send(results);
+        //console.log(results);
+    });
+});
+
+// NEED to specify replies of what Moo
+app.get(route + '/replies', (req, res) => {
+    const query = 'SELECT * FROM ReplyTo WHERE originalMooID = ?;';
+    if (req.query.mooID == null) {
+        res.send('Need to include parameter: mooID')
+        return;
+    }
+    connection.query(query, [req.query.mooID], (error, results, fields) => {
+
+        if (error) {
+            res.send(error);
+            return;
+        }
+
+        res.send(results);
+    });
+})
 
 app.listen(port, () => {
     console.log('on port: 4000');
