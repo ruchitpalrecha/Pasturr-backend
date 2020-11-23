@@ -686,7 +686,7 @@ app.get(route + '/tagFrequency', (req, res) => {
 });
 
 app.get(route + '/userTagFrequency', (req, res) => {
-    const query = 'SELECT handle, COUNT(tagName) FROM Tag GROUP BY handle;';
+    const query = 'SELECT handle, COUNT(tagName) AS frequency FROM Tag GROUP BY handle;';
     connection.query(query, (error, results, fields) => {
         if (error) {
             res.send(error);
