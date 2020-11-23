@@ -165,7 +165,6 @@ app.post(route + '/tables', (req, res) => {
 
     CREATE TABLE Tag(
         tagName VARCHAR(32),
-        frequency INTEGER,
         handle VARCHAR(32),
         PRIMARY KEY(tagName),
         FOREIGN KEY(handle) REFERENCES User(handle) ON DELETE SET NULL
@@ -317,11 +316,11 @@ INSERT INTO ReplyTo values("replymooid3", "mooid3");
 INSERT INTO ReplyTo values("replymooid4", "mooid3");
 INSERT INTO ReplyTo values("replymooid5", "replymooid4");
 
-INSERT INTO Tag values("tag 1", 50, "jdb");
-INSERT INTO Tag values("tag 2", 50, "Ronin");
-INSERT INTO Tag values("tag 3", 50, "Ruchit");
-INSERT INTO Tag values("tag 4", 50, "John");
-INSERT INTO Tag values("tag 5", 50, "Jack");
+INSERT INTO Tag values("tag 1", "jdb");
+INSERT INTO Tag values("tag 2", "Ronin");
+INSERT INTO Tag values("tag 3", "Ruchit");
+INSERT INTO Tag values("tag 4", "John");
+INSERT INTO Tag values("tag 5", "Jack");
 
 INSERT INTO Trending values("tag 1", 1, "North America");
 INSERT INTO Trending values("tag 2", 1, "Middle East");
@@ -634,7 +633,7 @@ app.post(route + '/filterMoos', jsonParser, (req, res) => {
 app.get(route + '/tag', (req, res) => {
     let query = 'SELECT * FROM Tag;';
     if (req.query.mooID != null) {
-        query = 'SELECT t.tagName, t.frequency, t.handle, w.mooID FROM Tag t, TaggedWith w WHERE t.tagName = w.tagName AND mooID = ?;'
+        query = 'SELECT t.tagName, t.handle, w.mooID FROM Tag t, TaggedWith w WHERE t.tagName = w.tagName AND mooID = ?;'
     }
     connection.query(query, [req.query.mooID], (error, results, fields) => {
 
@@ -649,16 +648,41 @@ app.get(route + '/tag', (req, res) => {
 
 app.post(route + '/tag', jsonParser, (req, res) => {
     const tagName = req.body.tagName;
-    const frequency = 0;
     const handle = req.body.handle;
 
-    const query = 'INSERT INTO Tag (tagName, frequency, handle) VALUES (?, ?, ?)';
-    connection.query(query, [tagName, frequency, handle], (error, results, fields) => {
+    const query = 'INSERT INTO Tag (tagName, handle) VALUES (?, ?)';
+    connection.query(query, [tagName, handle], (error, results, fields) => {
         if (error) {
             res.send(error);
             return;
         }
         res.send("Added Tag correctly");
+    });
+});
+
+app.get(route + '/tagFrequency', (req, res) => {
+    if (req.query.count == null) {
+        res.send('Need to include parameter: count')
+        return;
+    }
+    const query = 'SELECT tagName, COUNT(mooID) AS frequency FROM TaggedWith GROUP BY tagName HAVING COUNT(*) >= ?;';
+    connection.query(query, [req.query.count], (error, results, fields) => {
+        if (error) {
+            res.send(error);
+            return;
+        }
+        res.send(results);
+    });
+});
+
+app.get(route + '/userTagFrequency', (req, res) => {
+    const query = 'SELECT handle, COUNT(tagName) FROM Tag GROUP BY handle;';
+    connection.query(query, (error, results, fields) => {
+        if (error) {
+            res.send(error);
+            return;
+        }
+        res.send(results);
     });
 });
 
