@@ -474,7 +474,7 @@ app.get(route + '/remoo', (req, res) => {
 
 // NEED to specify replies of what Moo
 app.get(route + '/replies', (req, res) => {
-    const query = 'SELECT * FROM ReplyTo WHERE originalMooID = ?;';
+    const query = 'SELECT r.replymooID, m.mooID, m.content, m.likeCount, m.mooTime, m.handle FROM ReplyTo r, Moo m WHERE m.mooID = r.replymooID AND originalMooID = ?;';
     if (req.query.mooID == null) {
         res.send('Need to include parameter: mooID')
         return;
