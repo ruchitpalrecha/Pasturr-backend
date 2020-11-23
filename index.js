@@ -546,9 +546,12 @@ app.get(route + '/numReplies', (req, res) => {
 app.post(route + '/filterMoos', jsonParser, (req, res) => {
     let query = 'SELECT * FROM Moo;';
     vals = []
+    if (req.body != null && req.body.handle == "") {
+        req.body.handle = null
+    }
     if (req.body == null) {
     }
-    else if ((req.body.handle != null || req.body.handle == "") && req.body.mooTime != null && req.body.tags != null) {
+    else if (req.body.handle != null && req.body.mooTime != null && req.body.tags != null) {
         query = `SELECT * 
         FROM Moo 
         WHERE handle = ? AND mooTime >= ? 
@@ -566,11 +569,11 @@ app.post(route + '/filterMoos', jsonParser, (req, res) => {
         WHERE w.mooID = m.mooID))));`;
         vals = [req.body.handle, req.body.mooTime, req.body.tags]
     }
-    else if ((req.body.handle != null || req.body.handle == "") && req.body.mooTime != null) {
+    else if (req.body.handle != null && req.body.mooTime != null) {
         query = 'SELECT * FROM Moo WHERE handle = ? AND mooTime >= ?;'
         vals = [req.body.handle, req.body.mooTime];
     }
-    else if ((req.body.handle != null || req.body.handle == "") && req.body.tags != null) {
+    else if (req.body.handle != null && req.body.tags != null) {
         query = `SELECT * 
         FROM Moo 
         WHERE handle = ?
@@ -606,7 +609,7 @@ app.post(route + '/filterMoos', jsonParser, (req, res) => {
         WHERE w.mooID = m.mooID))));`;
         vals = [req.body.mooTime, req.body.tags]
     }
-    else if (req.body.handle != null || req.body.handle == "") {
+    else if (req.body.handle != null) {
         query = 'SELECT * FROM Moo WHERE handle = ?';
         vals = [req.body.handle];
     }
