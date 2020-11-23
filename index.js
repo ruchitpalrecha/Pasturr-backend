@@ -588,8 +588,11 @@ app.post(route + '/filterMoos', jsonParser, (req, res) => {
 });
 
 app.get(route + '/tag', (req, res) => {
-    const query = 'SELECT * FROM Tag;';
-    connection.query(query, (error, results, fields) => {
+    let query = 'SELECT * FROM Tag;';
+    if (req.query.mooID != null) {
+        query = 'SELECT t.tagName, t.frequency, t.handle, w.mooID FROM Tag t, TaggedWith w WHERE t.tagName = w.tagName AND mooID = ?;'
+    }
+    connection.query(query, [req.query.mooID], (error, results, fields) => {
 
         if (error) {
             res.send(error);
