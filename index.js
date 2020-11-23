@@ -618,6 +618,23 @@ app.post(route + '/tag', jsonParser, (req, res) => {
     });
 });
 
+app.put(route + '/like', (req, res) => {
+    const query = 'UPDATE Moo SET likeCount = likeCount + 1 WHERE mooID = ?';
+    if (req.query.mooID == null) {
+        res.send('Need to include parameter: mooID')
+        return;
+    }
+    connection.query(query, [req.query.mooID], (error, results, fields) => {
+
+        if (error) {
+            res.send(error);
+            return;
+        }
+
+        res.send(results);
+    });
+})
+
 app.listen(port, () => {
     console.log('on port: 4000');
 });
