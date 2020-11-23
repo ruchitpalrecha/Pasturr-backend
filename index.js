@@ -656,6 +656,23 @@ app.get(route + '/tag', (req, res) => {
     });
 });
 
+app.get(route + '/tagMatch', (req, res) => {
+    const query = `SELECT * FROM Tag WHERE tagName LIKE ?;`;
+    if (req.query.tagName == null) {
+        res.send('Need to include parameter: tagName')
+        return;
+    }
+    connection.query(query, ['%' + req.query.tagName + '%'], (error, results, fields) => {
+
+        if (error) {
+            res.send(error);
+            return;
+        }
+
+        res.send(results);
+    });
+});
+
 app.post(route + '/tag', jsonParser, (req, res) => {
     const tagName = req.body.tagName;
     const handle = req.body.handle;
