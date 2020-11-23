@@ -430,7 +430,6 @@ app.get(route + '/payment', (req, res) => {
     });
 });
 
-// Get tags for moos
 app.get(route + '/moo', (req, res) => {
     const query = 'SELECT * FROM Moo WHERE mooID NOT IN (SELECT replyMooID FROM ReplyTo);';
     connection.query(query, (error, results, fields) => {
@@ -450,8 +449,9 @@ app.post(route + '/moo', jsonParser, (req, res) => {
     const likeCount = 0;
     const mooTime = new Date().toISOString().slice(0, 19).replace('T', ' ');;
     const handle = req.body.handle;
+    const tags = req.body.tags;
 
-    const query = 'INSERT INTO Moo (mooID, content, mediaURL, likeCount, mooTime, handle) VALUES (?, ?, ?, ?, ?, ?)';
+    let query = 'INSERT INTO Moo (mooID, content, mediaURL, likeCount, mooTime, handle) VALUES (?, ?, ?, ?, ?, ?)';
     connection.query(query, [mooID, content, mediaURL, likeCount, mooTime, handle], (error, results, fields) => {
         if (error) {
             res.send(error);
@@ -459,7 +459,26 @@ app.post(route + '/moo', jsonParser, (req, res) => {
         }
         res.send("Added Moo correctly");
     });
+
+
 });
+
+app.put(route + '/like', (req, res) => {
+    const query = 'UPDATE Moo SET likeCount = likeCount + 1 WHERE mooID = ?';
+    if (req.query.mooID == null) {
+        res.send('Need to include parameter: mooID')
+        return;
+    }
+    connection.query(query, [req.query.mooID], (error, results, fields) => {
+
+        if (error) {
+            res.send(error);
+            return;
+        }
+
+        res.send(results);
+    });
+})
 
 app.get(route + '/remoo', (req, res) => {
     const query = 'SELECT r.mooID, comment, ofMooID, content, likeCount, mooTime, handle FROM ReMoo r, Moo m WHERE r.ofMooID = m.mooID;';
@@ -617,23 +636,6 @@ app.post(route + '/tag', jsonParser, (req, res) => {
         res.send("Added Tag correctly");
     });
 });
-
-app.put(route + '/like', (req, res) => {
-    const query = 'UPDATE Moo SET likeCount = likeCount + 1 WHERE mooID = ?';
-    if (req.query.mooID == null) {
-        res.send('Need to include parameter: mooID')
-        return;
-    }
-    connection.query(query, [req.query.mooID], (error, results, fields) => {
-
-        if (error) {
-            res.send(error);
-            return;
-        }
-
-        res.send(results);
-    });
-})
 
 app.listen(port, () => {
     console.log('on port: 4000');
