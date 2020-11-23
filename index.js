@@ -182,7 +182,7 @@ app.post(route + '/tables', (req, res) => {
 
     CREATE TABLE TaggedWith(
         tagName VARCHAR(32),
-        mooID VARCHAR(16),
+        mooID VARCHAR(40),
         PRIMARY KEY(tagName, mooID),
         FOREIGN KEY(tagName) REFERENCES Tag(tagName) ON DELETE CASCADE,
         FOREIGN KEY(mooID) REFERENCES Moo(mooID) ON DELETE CASCADE
@@ -457,10 +457,16 @@ app.post(route + '/moo', jsonParser, (req, res) => {
             res.send(error);
             return;
         }
-        res.send("Added Moo correctly");
     });
 
-
+    query = "INSERT INTO TaggedWith (tagName, mooID) SELECT tagName, ? AS mooID FROM Tag WHERE tagName IN (?);"
+    connection.query(query, [mooID, tags], (error, results, fields) => {
+        if (error) {
+            res.send(error);
+            return;
+        }
+        res.send("Added Moo correctly");
+    });
 });
 
 app.put(route + '/like', (req, res) => {
@@ -509,6 +515,7 @@ app.get(route + '/replies', (req, res) => {
     });
 });
 
+// Just retrieve reply count
 app.get(route + '/numReplies', (req, res) => {
     const query = 'SELECT r.originalMooID AS mooID, COUNT(r.replyMooID) AS numReplies FROM ReplyTo r GROUP BY r.originalMooID HAVING COUNT(*) > 1';
     connection.query(query, (error, results, fields) => {
