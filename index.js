@@ -441,7 +441,6 @@ app.get(route + '/moo', (req, res) => {
     });
 });
 
-// Add tags when creating moos
 app.post(route + '/moo', jsonParser, (req, res) => {
     const mooID = uuidv4();
     const content = req.body.content;
@@ -544,13 +543,12 @@ app.get(route + '/numReplies', (req, res) => {
     });
 });
 
-// TODO: Filter by tags (division)
 app.post(route + '/filterMoos', jsonParser, (req, res) => {
     let query = 'SELECT * FROM Moo;';
     vals = []
     if (req.body == null) {
     }
-    else if (req.body.handle != null && req.body.mooTime != null && req.body.tags != null) {
+    else if ((req.body.handle != null || req.body.handle == "") && req.body.mooTime != null && req.body.tags != null) {
         query = `SELECT * 
         FROM Moo 
         WHERE handle = ? AND mooTime >= ? 
@@ -568,11 +566,11 @@ app.post(route + '/filterMoos', jsonParser, (req, res) => {
         WHERE w.mooID = m.mooID))));`;
         vals = [req.body.handle, req.body.mooTime, req.body.tags]
     }
-    else if (req.body.handle != null && req.body.mooTime != null) {
+    else if ((req.body.handle != null || req.body.handle == "") && req.body.mooTime != null) {
         query = 'SELECT * FROM Moo WHERE handle = ? AND mooTime >= ?;'
         vals = [req.body.handle, req.body.mooTime];
     }
-    else if (req.body.handle != null && req.body.tags != null) {
+    else if ((req.body.handle != null || req.body.handle == "") && req.body.tags != null) {
         query = `SELECT * 
         FROM Moo 
         WHERE handle = ?
@@ -608,7 +606,7 @@ app.post(route + '/filterMoos', jsonParser, (req, res) => {
         WHERE w.mooID = m.mooID))));`;
         vals = [req.body.mooTime, req.body.tags]
     }
-    else if (req.body.handle != null) {
+    else if (req.body.handle != null || req.body.handle == "") {
         query = 'SELECT * FROM Moo WHERE handle = ?';
         vals = [req.body.handle];
     }
