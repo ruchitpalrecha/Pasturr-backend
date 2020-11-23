@@ -469,6 +469,23 @@ app.post(route + '/moo', jsonParser, (req, res) => {
     });
 });
 
+app.delete(route + '/moo', (req, res) => {
+    const query = 'DELETE FROM Moo WHERE mooID = ?';
+    if (req.query.mooID == null) {
+        res.send('Need to include parameter: mooID')
+        return;
+    }
+    connection.query(query, [req.query.mooID], (error, results, fields) => {
+
+        if (error) {
+            res.send(error);
+            return;
+        }
+
+        res.send(results);
+    });
+})
+
 app.put(route + '/like', (req, res) => {
     const query = 'UPDATE Moo SET likeCount = likeCount + 1 WHERE mooID = ?';
     if (req.query.mooID == null) {
