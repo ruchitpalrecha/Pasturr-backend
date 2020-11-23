@@ -230,6 +230,7 @@ INSERT INTO User values("Ruchit", "Ruchit@gmail.com", "lolxd123", "Ruchit Palrec
 INSERT INTO User values("John", "John@gmail.com", "lolxd123", "John Smith", "yes", "Canada");
 INSERT INTO User values("Jack", "Jack@gmail.com", "lolxd123", "Jack Bower", "lol", "Canada");
 INSERT INTO User values("JacksSon", "JackJr@gmail.com", ";lkjasdf", "Jack Bower", "sup", "Canada");
+INSERT INTO User values("Kai", "Kai@gmail.com", ";lkjasdf", "Kai Sawamoto", "jp", "Japan");
 
 INSERT INTO User values("moomod1", "moomod1@gmail.com", "adminpassword69", "Farmer Bob", "CEO", "United States");
 INSERT INTO User values("moomod2", "moomod2@gmail.com", "testpassword", "Farmer Billy", "cows", "United States");
@@ -430,8 +431,17 @@ app.get(route + '/payment', (req, res) => {
 });
 
 app.get(route + '/moo', (req, res) => {
-    const query = 'SELECT * FROM Moo WHERE mooID NOT IN (SELECT replyMooID FROM ReplyTo);';
-    connection.query(query, (error, results, fields) => {
+    if (req.query.region == null) {
+        res.send('Need to include parameter: region')
+        return;
+    }
+    const query = `SELECT m.mooID, m.content, m.likeCount, m.mooTime, m.handle 
+    FROM Moo m, User u, Country c 
+    WHERE u.handle = m.handle 
+    AND c.country = u.country
+    AND c.regionName = ?
+    AND mooID NOT IN (SELECT replyMooID FROM ReplyTo);`;
+    connection.query(query, [req.query.region], (error, results, fields) => {
         if (error) {
             res.send(error);
             return;
