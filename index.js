@@ -713,6 +713,21 @@ app.get(route + '/userTagFrequency', (req, res) => {
     });
 });
 
+app.get(route + '/popularUser', (req, res) => {
+    const query = `SELECT numMoosPerHandle.handle, numMoosPerHandle.n AS frequency
+    FROM (SELECT m.handle, COUNT(*) n
+            FROM Moo m
+            GROUP BY m.handle) AS numMoosPerHandle
+    WHERE numMoosPerHandle.n = (SELECT MAX(Temp.n)
+                    FROM numMoosPerHandle AS Temp);`;
+    connection.query(query, (error, results, fields) => {
+        if (error) {
+            res.send(error);
+            return;
+        }
+        res.send(results);
+    });
+});
 app.listen(port, () => {
     console.log('on port: 4000');
 });
