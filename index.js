@@ -237,6 +237,7 @@ INSERT INTO User values("moomod2", "moomod2@gmail.com", "testpassword", "Farmer 
 INSERT INTO User values("moomod3", "moomod3@gmail.com", "adminpassword69", "Farmer Joe", "pigs", "United States");
 INSERT INTO User values("moomod4", "moomod4@gmail.com", "adminpassword69", "Farmer Harry", "wheat", "United States");
 INSERT INTO User values("moomod5", "moomod5@gmail.com", "adminpassword69", "Farmer Tammie", "chickens", "United States");
+INSERT INTO User values("FakeBot", "botman@email.com", "aasdf", "Robo Jeremy", "hey im a bot", "Russia");
 
 INSERT INTO User values("bot1", "bot1@gmail.com", "cvbn", "Botty", "beep boop", "Russia");
 INSERT INTO User values("bot2", "bot2@gmail.com", "tyzxcv", "Botty", "beep boop", "Russia");
