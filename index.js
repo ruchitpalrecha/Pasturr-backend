@@ -459,16 +459,9 @@ app.post(route + '/moo', jsonParser, (req, res) => {
     const handle = req.body.handle;
     const tags = req.body.tags;
 
-    let query = 'INSERT INTO Moo (mooID, content, mediaURL, likeCount, mooTime, handle) VALUES (?, ?, ?, ?, ?, ?)';
-    connection.query(query, [mooID, content, mediaURL, likeCount, mooTime, handle], (error, results, fields) => {
-        if (error) {
-            res.send(error);
-            return;
-        }
-    });
-
-    query = "INSERT INTO TaggedWith (tagName, mooID) SELECT tagName, ? AS mooID FROM Tag WHERE tagName IN (?);"
-    connection.query(query, [mooID, tags], (error, results, fields) => {
+    let query = `INSERT INTO Moo (mooID, content, mediaURL, likeCount, mooTime, handle) VALUES (?, ?, ?, ?, ?, ?);
+    INSERT INTO TaggedWith (tagName, mooID) SELECT tagName, ? AS mooID FROM Tag WHERE tagName IN (?);`;
+    connection.query(query, [mooID, content, mediaURL, likeCount, mooTime, handle, mooID, tags], (error, results, fields) => {
         if (error) {
             res.send(error);
             return;
