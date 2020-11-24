@@ -714,12 +714,11 @@ app.get(route + '/userTagFrequency', (req, res) => {
 });
 
 app.get(route + '/popularUser', (req, res) => {
-    const query = `SELECT numMoosPerHandle.handle, numMoosPerHandle.n AS frequency
-    FROM (SELECT m.handle, COUNT(*) n
-            FROM Moo m
-            GROUP BY m.handle) AS numMoosPerHandle
-    WHERE numMoosPerHandle.n = (SELECT MAX(Temp.n)
-                    FROM numMoosPerHandle AS Temp);`;
+    const query = `SELECT handle 
+    FROM (SELECT handle, COUNT(*) AS n FROM Moo GROUP BY handle) AS temp1 
+    WHERE n = 
+    (SELECT MAX(temp2.n) 
+    FROM (SELECT handle, COUNT(*) AS n FROM Moo GROUP BY handle) AS temp2);`;
     connection.query(query, (error, results, fields) => {
         if (error) {
             res.send(error);
